@@ -10,8 +10,6 @@ syntax on
 "不需要备份
 set nobackup
 
-set nocompatible
-
 "没有保存或文件只读时弹出确认
 set confirm
 
@@ -20,7 +18,7 @@ set mouse=a
 
 "tab缩进
 set tabstop=2
-set shiftwidth=4
+set shiftwidth=2
 set expandtab
 set smarttab
 
@@ -84,10 +82,27 @@ Plug 'mattn/emmet-vim'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'jiangmiao/auto-pairs'
 Plug 'morhetz/gruvbox'
+Plug 'preservim/nerdcommenter'
+Plug 'yuezk/vim-js'
+Plug 'maxmellon/vim-jsx-pretty'
+"Plug 'SirVer/ultisnips'
+Plug 'mlaursen/vim-react-snippets'
 call plug#end()
 
 filetype plugin indent on
 
+"multi cursors配置
+let g:multi_cursor_use_default_mapping=0
+
+" Default mapping
+let g:multi_cursor_start_word_key      = '<S-n>'
+let g:multi_cursor_select_all_word_key = '<A-n>'
+let g:multi_cursor_start_key           = 'g<S-n>'
+let g:multi_cursor_select_all_key      = 'g<A-n>'
+let g:multi_cursor_next_key            = '<S-n>'
+let g:multi_cursor_prev_key            = '<S-p>'
+let g:multi_cursor_skip_key            = '<S-x>'
+let g:multi_cursor_quit_key            = '<Esc>'
 " coc-actions
 " ctrl + b 跳转到函数，并在新的tab页面中打开
 nmap <silent> <C-b> :call CocAction('jumpDefinition', 'tab drop')<CR>
@@ -98,28 +113,28 @@ command! -nargs=0 Prettier :CocCommand prettier.formatFile
 " coc-nvim 插件管理
 let g:coc_global_extensions = ['coc-json', 'coc-vimlsp', 'coc-tsserver', 'coc-snippets']
 
-inoremap <expr> <cr> coc#pum#visible() ? coc#pum#confirm() : "\<CR>"
-" use <tab> to trigger completion and navigate to the next complete item
+inoremap <silent><expr> <TAB>
+      \ coc#pum#visible() ? coc#_select_confirm() :
+      \ coc#expandableOrJumpable() ? "\<C-r>=coc#rpc#request('doKeymap', ['snippets-expand-jump',''])\<CR>" :
+      \ CheckBackspace() ? "\<TAB>" :
+      \ coc#refresh()
+
 function! CheckBackspace() abort
   let col = col('.') - 1
   return !col || getline('.')[col - 1]  =~# '\s'
 endfunction
 
-inoremap <silent><expr> <Tab>
-      \ coc#pum#visible() ? coc#pum#next(1) :
-      \ CheckBackspace() ? "\<Tab>" :
-      \ coc#refresh()
+let g:coc_snippet_next = '<tab>'
 " Use <Tab> and <S-Tab> to navigate the completion list
-inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
-inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
-" Use <c-space> to trigger completion
-inoremap <silent><expr> <c-space> coc#refresh()
+"inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
+"inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 
-" / + n打开or关闭NERDTree
+" \ + n打开or关闭NERDTree
 nnoremap <leader>n :NERDTreeFocus<CR>
 nnoremap <C-n> :NERDTree<CR>
 nnoremap <C-t> :NERDTreeToggle<CR>
 nnoremap <C-f> :NERDTreeFind<CR>
+let NERDTreeShowHidden=1
 
 " Use <C-l> for trigger snippet expand.
 imap <C-l> <Plug>(coc-snippets-expand)
@@ -153,8 +168,7 @@ let g:coc_global_extensions = ['coc-json', 'coc-html']
 set background=dark
 let g:gruvbox_italic=1
 colorscheme gruvbox
-" colorscheme onedark
-" colorscheme monokai
+"colorscheme onedark
 
 " airline
 let g:airline#extensions#tabline#enabled = 1                " 设置开启tab样式
